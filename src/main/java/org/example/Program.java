@@ -1,52 +1,49 @@
 package org.example;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.springframework.http.converter.json.GsonBuilderUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 public class Program {
 
+    public static void main (String[]args ){
+        Scanner sc = new Scanner (System.in);
 
-    public static void main(String[] args) throws ParseException {
+        List<Employee> list = new ArrayList<>();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter client data: ");
-        System.out.print("Name: ");
-        String name = sc.nextLine();
-        System.out.print("Email: ");
-        String email = sc.next();
-        System.out.print("Birth date (DD/MM/YYYY): ");
-        Date birthDate =  sdf.parse(sc.next());
-
-        Client client = new Client(name, email, birthDate);
-
-        System.out.println("Enter order data: ");
-        System.out.print("Status: ");
-        OrderStatus status = OrderStatus.valueOf(sc.next());
-
-        Order order = new Order(new Date(), status, client);
-
-        System.out.print("How many items to this order? ");
-        int N = sc.nextInt();
-        for(int i =0; i<N; i++){
-            System.out.println("Enter #" + (i+1) + " item data: ");
-            System.out.print("Product name: ");
+        System.out.print("Enter the number of employees: ");
+        int n = sc.nextInt();
+        for (int i=1; i<=n; i++ ){
+            System.out.println("Employee #" + i + " data:");
+            System.out.print("Outsourced (y/n)? ");
+            char ch = sc.next().charAt(0);
+            System.out.print("Name: ");
             sc.nextLine();
-            String productName = sc.nextLine();
-            System.out.print("Product price: ");
-            double productPrice = sc.nextDouble();
-            System.out.print("Quantity: ");
-            int quantity = sc.nextInt();
+            String name = sc.nextLine();
+            System.out.print("Hours: ");
+            int hours = sc.nextInt();
+            System.out.print("Value per Hour: ");
+            double valuePerHour = sc.nextDouble();
+            if (ch == 'y'){
+                System.out.print("Additional charge: ");
+                double additionalCharge = sc.nextDouble();
+                Employee emp = new OutsourcedEmployee(name, hours, valuePerHour, additionalCharge);
+                list.add(emp);
+            }
+            else {
+                Employee emp = new Employee(name, hours, valuePerHour);
+                list.add(emp);
+            }
 
-            Product product = new Product (productName, productPrice);
-
-            OrderItem it = new OrderItem (quantity, productPrice, product);
-
-            order.addItem(it);
+            }
+        System.out.println();
+        System.out.println("PAYMENTS: ");
+        for (Employee emp : list){
+            System.out.println(emp.getName() + " - $ " + emp.payment());
 
         }
-        System.out.println();
-        System.out.println(order);
+
+
+        sc.close();
     }
 }
