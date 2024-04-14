@@ -1,56 +1,55 @@
 package org.example;
-import org.springframework.http.converter.json.GsonBuilderUtils;
+import org.example.Exception.ChessException;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+
+
 public class Program {
 
-    public static void main (String[]args ){
-        Scanner sc = new Scanner (System.in);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        List<Product> list = new ArrayList<>();
+    public static void main(String[] args) {
 
-        System.out.print("Enter the number of products: ");
-        int n = sc.nextInt();
-        for (int i=1; i<=n; i++ ){
-            System.out.println("Product #" + i + " data:");
-            System.out.print("Common, used or imported (c/u/i)? ");
-            char ch = sc.next().charAt(0);
-            System.out.print("Name: ");
-            sc.nextLine();
-            String name = sc.nextLine();
-            System.out.print("Price: ");
-            double price = sc.nextDouble();
-            if (ch == 'i'){
-                System.out.print("Customs fee: ");
-                double customsFee = sc.nextDouble();
-                Product pi = new ImportedProduct(name, price, customsFee);
-                list.add(pi);
+        Scanner sc = new Scanner(System.in);
+        ChessMatch chessMatch = new ChessMatch();
+        List<ChessPiece> captured = new ArrayList<>();
+
+        while (!chessMatch.getCheckMate()){
+
+            try {
+
+                UI.clearScreen();                                                             //chama o metodo clarScanner da classe UI
+
+                UI.printMatch(chessMatch, captured);
+                System.out.println();
+                System.out.print("Source: ");
+                ChessPosition source = UI.readChessPosition(sc);
+
+                boolean [][] possibleMoves = chessMatch.possibleMoves(source);
+                UI.clearScreen();
+                UI.printBoard(chessMatch.getPieces(), possibleMoves);
+
+                System.out.println();
+                System.out.print("Target: ");
+                ChessPosition target = UI.readChessPosition(sc);
+
+                ChessPiece capturedPiece = chessMatch.performChessMove(source, target);
+
+                if (capturedPiece != null) {                                                //se a peca capturada é diferente de nulo (-) add a peca na lista de pecas capturadas
+                    captured.add(capturedPiece);
+                }
             }
-            else if (ch == 'u'){
-                System.out.print("Manufactured Date (DD/MM/YYYY): ");
+            catch (ChessException e){
+                System.out.println(e.getMessage());
                 sc.nextLine();
-                String manufacturedDate = sc.nextLine();
-                Product pu = new UsedProduct(name, price, manufacturedDate);
-                list.add(pu);
             }
-            else {
-                Product pc = new Product(name, price);
-                list.add(pc);
+            catch (InputMismatchException e){
+                System.out.println(e.getMessage());
+                sc.nextLine();
             }
-
-            }
-        System.out.println();
-        System.out.println("PRICE TAGS: ");
-        for (Product pciu : list){
-            System.out.println(pciu.toString());
-
         }
-
-
-        sc.close();
+        UI.clearScreen();
+        UI.printMatch(chessMatch, captured);
     }
 }
